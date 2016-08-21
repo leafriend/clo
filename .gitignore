@@ -1,0 +1,10 @@
+# Ignore all hidden files starting with dot(`.`) except Git ignore file
+.*
+!.gitignore
+
+# Ignore target directory
+/target/
+
+# Ignore all log files & backup files
+*.log
+*.bak
