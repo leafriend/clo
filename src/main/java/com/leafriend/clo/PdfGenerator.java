@@ -1,7 +1,11 @@
 package com.leafriend.clo;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
@@ -21,15 +25,35 @@ public class PdfGenerator {
 
     public void generate() throws DocumentException, IOException {
 
+        File lyricsDir = new File("src/main/resources");
+        String lyricsFile = "Buck-Tick/[2010-03-24] 独壇場Beauty/01-独壇場Beauty.txt";
+
+        File pdfDir = new File("target/pdf");
+        String pdfFile = lyricsFile.substring(0, lyricsFile.length() - 4) + ".pdf";
+        File pdf = new File(pdfDir, pdfFile);
+        pdf.getParentFile().mkdirs();
+
+        generate(new File(lyricsDir, lyricsFile).getCanonicalPath(),
+                pdf.getCanonicalPath());
+    }
+
+    public void generate(String lyricsPath, String pdfPath)
+            throws DocumentException, IOException {
+        InputStream lyricsIn = new FileInputStream(lyricsPath);
+        OutputStream pdfOut = new FileOutputStream(pdfPath);
+        generate(lyricsIn, pdfOut);
+    }
+
+    public void generate(InputStream lyricsIn, OutputStream pdfOut)
+            throws DocumentException, IOException {
+
         BaseFont bf = BaseFont.createFont(
                 "src/main/resources/NotoSansCJKjp-Regular.otf",
                 BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
         font = new Font(bf, 10);
 
-        String dest = "target/lyrics.pdf";
-
         Document document = new Document();
-        PdfWriter.getInstance(document, new FileOutputStream(dest));
+        PdfWriter.getInstance(document, pdfOut);
 
         document.setPageSize(
                 new Rectangle(format.getWidth(), format.getHeight()));
