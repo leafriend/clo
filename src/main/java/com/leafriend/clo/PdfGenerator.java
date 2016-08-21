@@ -1,7 +1,6 @@
 package com.leafriend.clo;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -24,21 +23,6 @@ public class PdfGenerator {
     private Format format = new Format();
 
     private Font font;
-
-    public void generate() throws DocumentException, IOException {
-
-        File lyricsDir = new File("src/main/resources");
-        String lyricsFile = "Buck-Tick/[2010-03-24] 独壇場Beauty/01-独壇場Beauty.txt";
-
-        File pdfDir = new File("target/pdf");
-        String pdfFile = lyricsFile.substring(0, lyricsFile.length() - 4)
-                + ".pdf";
-        File pdf = new File(pdfDir, pdfFile);
-        pdf.getParentFile().mkdirs();
-
-        generate(new File(lyricsDir, lyricsFile).getCanonicalPath(),
-                pdf.getCanonicalPath());
-    }
 
     public void generate(String lyricsPath, String pdfPath)
             throws DocumentException, IOException {
