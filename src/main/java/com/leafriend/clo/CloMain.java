@@ -15,14 +15,19 @@ public class CloMain {
         File lyricsDir = new File("resources/lyrics/txt");
         File lyricsFile = new File(lyricsDir, lyricsPath);
 
+        String album = lyricsFile.getParentFile().getName();
+        String title = lyricsFile.getName();
+        title = title.substring(0, title.lastIndexOf('.'));
+
         File pdfDir = new File("resources/lyrics/pdf");
         String pdfPath = lyricsPath.substring(0, lyricsPath.length() - 4)
                 + ".pdf";
         File pdfFile = new File(pdfDir, pdfPath);
         pdfFile.getParentFile().mkdirs();
 
-        new PdfGenerator().generate(lyricsFile.getCanonicalPath(),
-                pdfFile.getCanonicalPath());
+        String lyrics = lyricsFile.getCanonicalPath();
+        String pdf = pdfFile.getCanonicalPath();
+        new PdfGenerator().generate(album, title, lyrics, pdf);
 
     }
 

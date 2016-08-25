@@ -12,6 +12,7 @@ import java.io.OutputStream;
 import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.Font;
+import com.itextpdf.text.Paragraph;
 import com.itextpdf.text.Phrase;
 import com.itextpdf.text.Rectangle;
 import com.itextpdf.text.pdf.BaseFont;
@@ -23,38 +24,23 @@ public class PdfGenerator {
 
     private Format format = new Format();
 
-    private Font font;
+    private Font albumFont;
+    private Font titleFont;
+    private Font bodyFont;
 
-    public void generate(String lyricsPath, String pdfPath)
-            throws DocumentException, IOException {
+    public void generate(String ablum, String title, String lyricsPath,
+            String pdfPath) throws DocumentException, IOException {
         InputStream lyricsIn = new FileInputStream(lyricsPath);
         OutputStream pdfOut = new FileOutputStream(pdfPath);
-        generate(lyricsIn, pdfOut);
+        generate(ablum, title, lyricsIn, pdfOut);
     }
 
-    public void generate(InputStream lyricsIn, OutputStream pdfOut)
-            throws DocumentException, IOException {
+    public void generate(String album, String title, InputStream lyricsIn,
+            OutputStream pdfOut) throws DocumentException, IOException {
 
-        File fontsDir = new File("resources/fonts");
-        all: for (File fontFile : fontsDir.listFiles()) {
-            String fileName = fontFile.getName().toLowerCase();
-            if (!fileName.endsWith(".ttf") && !fileName.endsWith(".otf"))
-                continue;
-
-            BaseFont bf = BaseFont.createFont(fontFile.getPath(),
-                    BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
-            for (String[] strs : bf.getFullFontName()) {
-                if (format.getFontFamily().equals(strs[3])) {
-                    font = new Font(bf, format.getFontSize());
-                    break all;
-                }
-            }
-
-        }
-        if (font == null) {
-            // TODO Warn
-            font = new Font();
-        }
+        albumFont = loadFont(format.getAlbumFontFamily(), format.getAlbumFontSize());
+        titleFont = loadFont(format.getTitleFontFamily(), format.getTitleFontSize());
+        bodyFont = loadFont(format.getFontFamily(), format.getFontSize());
 
         Document document = new Document();
         PdfWriter.getInstance(document, pdfOut);
@@ -66,10 +52,33 @@ public class PdfGenerator {
 
         document.open();
 
+        document.add(new Paragraph(album, albumFont));
+        document.add(new Paragraph(title, titleFont));
+        document.add(new Paragraph(" ", bodyFont));
+
         printLyrics(document, lyricsIn);
 
         document.close();
 
+    }
+
+    private Font loadFont(String fontFamily, float fontSize)
+            throws DocumentException, IOException {
+        File fontsDir = new File("resources/fonts");
+        for (File fontFile : fontsDir.listFiles()) {
+            String fileName = fontFile.getName().toLowerCase();
+            if (!fileName.endsWith(".ttf") && !fileName.endsWith(".otf"))
+                continue;
+
+            BaseFont bf = BaseFont.createFont(fontFile.getPath(),
+                    BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
+            for (String[] strs : bf.getFullFontName()) {
+                if (fontFamily.equals(strs[3])) {
+                    return new Font(bf, fontSize);
+                }
+            }
+        }
+        return new Font();
     }
 
     private void printLyrics(Document document, InputStream lyricsIn)
@@ -88,17 +97,17 @@ public class PdfGenerator {
                 if (line.length() == 0)
                     line = " ";
 
-                PdfPCell leftCell = new PdfPCell(new Phrase(line, font));
+                PdfPCell leftCell = new PdfPCell(new Phrase(line, bodyFont));
                 leftCell.setBorder(Rectangle.TOP | Rectangle.BOTTOM);
                 leftCell.setPaddingTop(10);
                 leftCell.setPaddingBottom(5);
                 table.addCell(leftCell);
 
-                PdfPCell betweenCell = new PdfPCell(new Phrase(" ", font));
+                PdfPCell betweenCell = new PdfPCell(new Phrase(" ", bodyFont));
                 betweenCell.setBorder(0);
                 table.addCell(betweenCell);
 
-                PdfPCell rightCell = new PdfPCell(new Phrase(" ", font));
+                PdfPCell rightCell = new PdfPCell(new Phrase(" ", bodyFont));
                 rightCell.setBorder(Rectangle.TOP | Rectangle.BOTTOM);
                 rightCell.setBorder(Rectangle.TOP | Rectangle.BOTTOM);
                 table.addCell(rightCell);
