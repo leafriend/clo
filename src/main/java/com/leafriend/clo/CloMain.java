@@ -10,18 +10,19 @@ public class CloMain {
     public static void main(String[] args)
             throws DocumentException, IOException {
 
+        String lyricsPath = "Buck-Tick/[2010-03-24] 独壇場Beauty/01-独壇場Beauty.txt";
+
         File lyricsDir = new File("resources/lyrics/txt");
-        String lyricsFile = "Buck-Tick/[2010-03-24] 独壇場Beauty/01-独壇場Beauty.txt";
-        File lyrics = new File(lyricsDir, lyricsFile);
+        File lyricsFile = new File(lyricsDir, lyricsPath);
 
         File pdfDir = new File("resources/lyrics/pdf");
-        String pdfFile = lyricsFile.substring(0, lyricsFile.length() - 4)
+        String pdfPath = lyricsPath.substring(0, lyricsPath.length() - 4)
                 + ".pdf";
-        File pdf = new File(pdfDir, pdfFile);
-        pdf.getParentFile().mkdirs();
+        File pdfFile = new File(pdfDir, pdfPath);
+        pdfFile.getParentFile().mkdirs();
 
-        new PdfGenerator().generate(lyrics.getCanonicalPath(),
-                pdf.getCanonicalPath());
+        new PdfGenerator().generate(lyricsFile.getCanonicalPath(),
+                pdfFile.getCanonicalPath());
 
     }
 
