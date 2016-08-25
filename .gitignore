@@ -5,6 +5,9 @@
 # Ignore target directory
 /target/
 
+# Ignore resources directory
+/resources/
+
 # Ignore all log files & backup files
 *.log
 *.bak

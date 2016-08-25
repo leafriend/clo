@@ -34,8 +34,7 @@ public class PdfGenerator {
     public void generate(InputStream lyricsIn, OutputStream pdfOut)
             throws DocumentException, IOException {
 
-        BaseFont bf = BaseFont.createFont(
-                "src/main/resources/NotoSansCJKjp-Regular.otf",
+        BaseFont bf = BaseFont.createFont("resources/fonts/NotoSansCJKjp-Regular.otf",
                 BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
         font = new Font(bf, 10);
 
