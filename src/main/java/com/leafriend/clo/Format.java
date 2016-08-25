@@ -8,6 +8,7 @@ import java.util.regex.Pattern;
 public class Format {
 
     private static final String MM = "mm";
+    private static final String PT = "pt";
 
     private final Properties props;
 
@@ -22,6 +23,9 @@ public class Format {
     private final float leftWidth;
     private final float betweenWidth;
     private final float rightWidth;
+
+    private String textBodyFont;
+    private float textBodySize;
 
     public Format() {
 
@@ -49,6 +53,9 @@ public class Format {
         leftWidth = (width - (marginLeft + betweenWidth + marginRight)) / 2;
         rightWidth = (width - (marginLeft + betweenWidth + marginRight)) / 2;
 
+        textBodyFont = props.getProperty("text.body.font");
+        textBodySize = loadAsPt("text.body.size");
+
     }
 
     private float loadAsPt(String key) {
@@ -57,6 +64,10 @@ public class Format {
             double scalar = Double.parseDouble(
                     value.substring(0, value.length() - MM.length()));
             return mm2pt(scalar);
+        } else if (Pattern.matches("^\\d+(\\.\\d+)?" + PT + "$", value)) {
+            double scalar = Double.parseDouble(
+                    value.substring(0, value.length() - PT.length()));
+            return (float) scalar;
         } else {
             throw new RuntimeException("Unsupported unit value: " + value);
         }
@@ -100,6 +111,14 @@ public class Format {
 
     public float getRightWidth() {
         return rightWidth;
+    }
+
+    public String getFontFamily() {
+        return textBodyFont;
+    }
+
+    public float getFontSize() {
+        return textBodySize;
     }
 
 }

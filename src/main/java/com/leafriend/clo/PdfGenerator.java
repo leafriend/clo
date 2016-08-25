@@ -44,8 +44,8 @@ public class PdfGenerator {
             BaseFont bf = BaseFont.createFont(fontFile.getPath(),
                     BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
             for (String[] strs : bf.getFullFontName()) {
-                if ("Noto Sans CJK JP Regular".equals(strs[3])) {
-                    font = new Font(bf, 10);
+                if (format.getFontFamily().equals(strs[3])) {
+                    font = new Font(bf, format.getFontSize());
                     break all;
                 }
             }
