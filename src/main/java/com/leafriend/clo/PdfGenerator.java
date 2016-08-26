@@ -46,7 +46,9 @@ public class PdfGenerator {
                 format.getFontSize());
 
         Document document = new Document();
-        PdfWriter.getInstance(document, pdfOut);
+        PdfWriter writer = PdfWriter.getInstance(document, pdfOut);
+        writer.setPageEvent(
+                new AlbumTitleHeader(album, title, format, fontManager));
 
         document.setPageSize(
                 new Rectangle(format.getWidth(), format.getHeight()));

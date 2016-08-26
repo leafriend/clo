@@ -24,6 +24,10 @@ public class Format {
     private final float betweenWidth;
     private final float rightWidth;
 
+    private String headerFont;
+    private float headerSize;
+    private float headerMargin;
+
     private String textAlbumFont;
     private float textAlbumSize;
     private String textTitleFont;
@@ -56,6 +60,10 @@ public class Format {
         betweenWidth = loadAsPt("format.margin.center");
         leftWidth = (width - (marginLeft + betweenWidth + marginRight)) / 2;
         rightWidth = (width - (marginLeft + betweenWidth + marginRight)) / 2;
+
+        headerFont = props.getProperty("header.font");
+        headerSize = loadAsPt("header.size");
+        headerMargin = loadAsPt("header.margin");
 
         textAlbumFont = props.getProperty("text.album.font");
         textAlbumSize = loadAsPt("text.album.size");
@@ -119,6 +127,18 @@ public class Format {
 
     public float getRightWidth() {
         return rightWidth;
+    }
+
+    public String getHeaderFontFamily() {
+        return headerFont;
+    }
+
+    public float getHeaderFontSize() {
+        return headerSize;
+    }
+
+    public float getHeaderMargin() {
+        return headerMargin;
     }
 
     public String getAlbumFontFamily() {
