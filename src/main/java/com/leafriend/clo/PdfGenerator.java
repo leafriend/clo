@@ -1,7 +1,6 @@
 package com.leafriend.clo;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -15,7 +14,6 @@ import com.itextpdf.text.Font;
 import com.itextpdf.text.Paragraph;
 import com.itextpdf.text.Phrase;
 import com.itextpdf.text.Rectangle;
-import com.itextpdf.text.pdf.BaseFont;
 import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
@@ -23,6 +21,8 @@ import com.itextpdf.text.pdf.PdfWriter;
 public class PdfGenerator {
 
     private Format format = new Format();
+
+    private FontManager fontManager = new FontManager("resources/fonts");
 
     private Font albumFont;
     private Font titleFont;
@@ -38,9 +38,12 @@ public class PdfGenerator {
     public void generate(String album, String title, InputStream lyricsIn,
             OutputStream pdfOut) throws DocumentException, IOException {
 
-        albumFont = loadFont(format.getAlbumFontFamily(), format.getAlbumFontSize());
-        titleFont = loadFont(format.getTitleFontFamily(), format.getTitleFontSize());
-        bodyFont = loadFont(format.getFontFamily(), format.getFontSize());
+        albumFont = fontManager.getFont(format.getAlbumFontFamily(),
+                format.getAlbumFontSize());
+        titleFont = fontManager.getFont(format.getTitleFontFamily(),
+                format.getTitleFontSize());
+        bodyFont = fontManager.getFont(format.getFontFamily(),
+                format.getFontSize());
 
         Document document = new Document();
         PdfWriter.getInstance(document, pdfOut);
@@ -60,25 +63,6 @@ public class PdfGenerator {
 
         document.close();
 
-    }
-
-    private Font loadFont(String fontFamily, float fontSize)
-            throws DocumentException, IOException {
-        File fontsDir = new File("resources/fonts");
-        for (File fontFile : fontsDir.listFiles()) {
-            String fileName = fontFile.getName().toLowerCase();
-            if (!fileName.endsWith(".ttf") && !fileName.endsWith(".otf"))
-                continue;
-
-            BaseFont bf = BaseFont.createFont(fontFile.getPath(),
-                    BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
-            for (String[] strs : bf.getFullFontName()) {
-                if (fontFamily.equals(strs[3])) {
-                    return new Font(bf, fontSize);
-                }
-            }
-        }
-        return new Font();
     }
 
     private void printLyrics(Document document, InputStream lyricsIn)
