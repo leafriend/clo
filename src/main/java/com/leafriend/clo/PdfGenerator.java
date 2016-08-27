@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
@@ -38,6 +40,15 @@ public class PdfGenerator {
     public void generate(String album, String title, InputStream lyricsIn,
             OutputStream pdfOut) throws DocumentException, IOException {
 
+        List<String> lines = new ArrayList<>();
+        try (BufferedReader reader = new BufferedReader(
+                new InputStreamReader(lyricsIn, "UTF-8"))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                lines.add(line);
+            }
+        }
+
         albumFont = fontManager.getFont(format.getAlbumFontFamily(),
                 format.getAlbumFontSize());
         titleFont = fontManager.getFont(format.getTitleFontFamily(),
@@ -61,13 +72,13 @@ public class PdfGenerator {
         document.add(new Paragraph(title, titleFont));
         document.add(new Paragraph(" ", bodyFont));
 
-        printLyrics(document, lyricsIn);
+        printLyrics(document, lines);
 
         document.close();
 
     }
 
-    private void printLyrics(Document document, InputStream lyricsIn)
+    private void printLyrics(Document document, List<String> lines)
             throws DocumentException, IOException {
 
         float[] columnWidths = { format.getLeftWidth(),
@@ -75,29 +86,24 @@ public class PdfGenerator {
         PdfPTable table = new PdfPTable(columnWidths);
         table.setWidthPercentage(100);
 
-        try (BufferedReader reader = new BufferedReader(
-                new InputStreamReader(lyricsIn, "UTF-8"))) {
+        for (String line : lines) {
+            if (line.length() == 0)
+                line = " ";
 
-            String line;
-            while ((line = reader.readLine()) != null) {
-                if (line.length() == 0)
-                    line = " ";
+            PdfPCell leftCell = new PdfPCell(new Phrase(line, bodyFont));
+            leftCell.setBorder(Rectangle.TOP | Rectangle.BOTTOM);
+            leftCell.setPaddingTop(10);
+            leftCell.setPaddingBottom(5);
+            table.addCell(leftCell);
 
-                PdfPCell leftCell = new PdfPCell(new Phrase(line, bodyFont));
-                leftCell.setBorder(Rectangle.TOP | Rectangle.BOTTOM);
-                leftCell.setPaddingTop(10);
-                leftCell.setPaddingBottom(5);
-                table.addCell(leftCell);
+            PdfPCell betweenCell = new PdfPCell(new Phrase(" ", bodyFont));
+            betweenCell.setBorder(0);
+            table.addCell(betweenCell);
 
-                PdfPCell betweenCell = new PdfPCell(new Phrase(" ", bodyFont));
-                betweenCell.setBorder(0);
-                table.addCell(betweenCell);
-
-                PdfPCell rightCell = new PdfPCell(new Phrase(" ", bodyFont));
-                rightCell.setBorder(Rectangle.TOP | Rectangle.BOTTOM);
-                rightCell.setBorder(Rectangle.TOP | Rectangle.BOTTOM);
-                table.addCell(rightCell);
-            }
+            PdfPCell rightCell = new PdfPCell(new Phrase(" ", bodyFont));
+            rightCell.setBorder(Rectangle.TOP | Rectangle.BOTTOM);
+            rightCell.setBorder(Rectangle.TOP | Rectangle.BOTTOM);
+            table.addCell(rightCell);
         }
 
         document.add(table);
