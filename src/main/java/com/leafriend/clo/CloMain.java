@@ -13,13 +13,19 @@ public class CloMain {
 
     public static void main(String[] args)
             throws DocumentException, IOException {
-        new CloMain("resources/lyrics/txt", "resources/lyrics/pdf")
-                .traverse("");
+        new CloMain("resources/lyrics/txt", "resources/lyrics/pdf").start();
     }
 
     public CloMain(String txtName, String pdfName) {
         txtDir = new File(txtName);
         pdfDir = new File(pdfName);
+    }
+
+    public void start() throws DocumentException, IOException {
+        File lyricsDir = new File("resources/lyrics");
+        if (!lyricsDir.exists())
+            new LyricsDownloader(lyricsDir).download();
+        traverse("");
     }
 
     public void traverse(String path) throws DocumentException, IOException {
