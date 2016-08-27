@@ -35,6 +35,8 @@ public class PdfGenerator {
         InputStream lyricsIn = new FileInputStream(lyricsPath);
         OutputStream pdfOut = new FileOutputStream(pdfPath);
         generate(ablum, title, lyricsIn, pdfOut);
+        pdfOut.close();
+        lyricsIn.close();
     }
 
     public void generate(String album, String title, InputStream lyricsIn,
@@ -72,17 +74,17 @@ public class PdfGenerator {
         int albumHeight = 12;
         int titleHeight = 24;
         int paddingHeight = 14;
-        int cellHeight = 10 + 15 + 5;
+        int cellHeight = 10 + 10 + 5;
 
         float availableHeight = height - marginTop - marginBottom;
         int pageCount = 1;
         float restHeight = availableHeight;
         restHeight -= (albumHeight + titleHeight + paddingHeight);
-        for (@SuppressWarnings("unused") String _ : lines) {
+        for (@SuppressWarnings("unused") String line : lines) {
             if (restHeight >= cellHeight) {
                 restHeight -= cellHeight;
             } else {
-                restHeight = availableHeight;
+                restHeight = availableHeight - cellHeight;
                 pageCount++;
             }
         }
