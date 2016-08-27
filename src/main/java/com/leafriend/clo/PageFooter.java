@@ -12,34 +12,32 @@ import com.itextpdf.text.pdf.PdfContentByte;
 import com.itextpdf.text.pdf.PdfPageEventHelper;
 import com.itextpdf.text.pdf.PdfWriter;
 
-public class AlbumTitleHeader extends PdfPageEventHelper {
+public class PageFooter extends PdfPageEventHelper {
 
-    private String album;
-
-    private String title;
+    private int pageCount;
 
     private Font font;
 
     private float margin;
 
-    public AlbumTitleHeader(String album, String title, Format format,
-            FontManager fontManager) throws DocumentException, IOException {
-        this.album = album;
-        this.title = title;
-        this.margin = format.getHeaderMargin();
+    public PageFooter(int pageCount, Format format, FontManager fontManager)
+            throws DocumentException, IOException {
+        this.pageCount = pageCount;
+        this.margin = format.getFooterMargin();
 
-        font = fontManager.getFont(format.getHeaderFontFamily(),
-                format.getHeaderFontSize());
+        font = fontManager.getFont(format.getFooterFontFamily(),
+                format.getFooterFontSize());
     }
 
     public void onEndPage(PdfWriter writer, Document document) {
 
         PdfContentByte cb = writer.getDirectContent();
-        Phrase header = new Phrase(album + " / " + title, font);
+        Phrase footer = new Phrase(document.getPageNumber() + " / " + pageCount,
+                font);
         float x = (document.right() - document.left()) / 2
                 + document.leftMargin();
-        float y = document.top() + margin;
-        ColumnText.showTextAligned(cb, Element.ALIGN_CENTER, header, x, y, 0);
+        float y = document.bottom() - margin;
+        ColumnText.showTextAligned(cb, Element.ALIGN_CENTER, footer, x, y, 0);
     }
 
 }

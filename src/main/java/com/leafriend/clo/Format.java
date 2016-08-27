@@ -28,6 +28,10 @@ public class Format {
     private float headerSize;
     private float headerMargin;
 
+    private String footerFont;
+    private float footerSize;
+    private float footerMargin;
+
     private String textAlbumFont;
     private float textAlbumSize;
     private String textTitleFont;
@@ -64,6 +68,10 @@ public class Format {
         headerFont = props.getProperty("header.font");
         headerSize = loadAsPt("header.size");
         headerMargin = loadAsPt("header.margin");
+
+        footerFont = props.getProperty("footer.font");
+        footerSize = loadAsPt("footer.size");
+        footerMargin = loadAsPt("footer.margin");
 
         textAlbumFont = props.getProperty("text.album.font");
         textAlbumSize = loadAsPt("text.album.size");
@@ -139,6 +147,18 @@ public class Format {
 
     public float getHeaderMargin() {
         return headerMargin;
+    }
+
+    public String getFooterFontFamily() {
+        return footerFont;
+    }
+
+    public float getFooterFontSize() {
+        return footerSize;
+    }
+
+    public float getFooterMargin() {
+        return footerMargin;
     }
 
     public String getAlbumFontFamily() {

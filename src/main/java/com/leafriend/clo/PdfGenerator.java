@@ -58,19 +58,44 @@ public class PdfGenerator {
 
         Document document = new Document();
         PdfWriter writer = PdfWriter.getInstance(document, pdfOut);
+
+        float width = format.getWidth();
+        float height = format.getHeight();
+        document.setPageSize(new Rectangle(width, height));
+
+        float marginLeft = format.getMarginLeft();
+        float marginRight = format.getMarginRight();
+        float marginTop = format.getMarginTop();
+        float marginBottom = format.getMarginBottom();
+        document.setMargins(marginLeft, marginRight, marginTop, marginBottom);
+
+        int albumHeight = 12;
+        int titleHeight = 24;
+        int paddingHeight = 14;
+        int cellHeight = 10 + 15 + 5;
+
+        float availableHeight = height - marginTop - marginBottom;
+        int pageCount = 1;
+        float restHeight = availableHeight;
+        restHeight -= (albumHeight + titleHeight + paddingHeight);
+        for (@SuppressWarnings("unused") String _ : lines) {
+            if (restHeight >= cellHeight) {
+                restHeight -= cellHeight;
+            } else {
+                restHeight = availableHeight;
+                pageCount++;
+            }
+        }
+
         writer.setPageEvent(
                 new AlbumTitleHeader(album, title, format, fontManager));
-
-        document.setPageSize(
-                new Rectangle(format.getWidth(), format.getHeight()));
-        document.setMargins(format.getMarginLeft(), format.getMarginRight(),
-                format.getMarginTop(), format.getMarginBottom());
+        writer.setPageEvent(new PageFooter(pageCount, format, fontManager));
 
         document.open();
 
-        document.add(new Paragraph(album, albumFont));
-        document.add(new Paragraph(title, titleFont));
-        document.add(new Paragraph(" ", bodyFont));
+        document.add(new Paragraph(albumHeight, album, albumFont));
+        document.add(new Paragraph(titleHeight, title, titleFont));
+        document.add(new Paragraph(paddingHeight, " ", bodyFont));
 
         printLyrics(document, lines);
 
@@ -92,6 +117,7 @@ public class PdfGenerator {
 
             PdfPCell leftCell = new PdfPCell(new Phrase(line, bodyFont));
             leftCell.setBorder(Rectangle.TOP | Rectangle.BOTTOM);
+            leftCell.setPadding(0);
             leftCell.setPaddingTop(10);
             leftCell.setPaddingBottom(5);
             table.addCell(leftCell);
