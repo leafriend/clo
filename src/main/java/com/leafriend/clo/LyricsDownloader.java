@@ -76,10 +76,19 @@ public class LyricsDownloader {
 
         List<Album> albums = new ArrayList<>();
 
-        for (Element imageWrapper : document
-                .getElementsByClass("imageWrapper")) {
+        for (Element hr : document.getElementsByTag("hr")) {
 
-            Element albumElem = imageWrapper.nextElementSibling();
+            Element follower = hr.nextElementSibling();
+            if ("div".equals(follower.tagName())) {
+                // follower is imageWrapper
+                follower = follower.nextElementSibling();
+            }
+
+            if (!"a".equals(follower.tagName())) {
+                break;
+            }
+
+            Element albumElem = follower;
             Album album = extractAlbum(albumElem);
 
             int trackNo = 0;
