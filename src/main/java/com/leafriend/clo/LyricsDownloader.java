@@ -11,11 +11,19 @@ import java.util.List;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.leafriend.clo.data.Album;
 import com.leafriend.clo.data.Track;
 
 public class LyricsDownloader {
+
+    private static final Logger LOGGER = LoggerFactory
+            .getLogger(LyricsDownloader.class);
+
+    private static final Logger LOGGER = LoggerFactory
+            .getLogger(LyricsDownloader.class);
 
     private File lyricsDir;
 
@@ -35,7 +43,7 @@ public class LyricsDownloader {
                     + escape(album.getTitle());
             File albumDir = new File(txtDir, albumName);
             if (!albumDir.exists()) {
-                System.out.println("Download Album: " + albumName);
+                LOGGER.debug("Download Album: {}", albumName);
                 albumDir.mkdirs();
             }
             album.getTracks().forEach(track -> {
@@ -45,14 +53,16 @@ public class LyricsDownloader {
                         track.getTrackNo(), escape(track.getTitle()));
                 File trackFile = new File(albumDir, titleName);
                 if (!trackFile.exists()) {
-                    System.out.println("Download Track: " + titleName);
+                    LOGGER.debug("Download Track: {}", titleName);
                     try {
                         try (FileOutputStream fos = new FileOutputStream(
                                 trackFile)) {
 
                         }
                     } catch (IOException e) {
-                        e.printStackTrace();
+                        LOGGER.error(
+                                "Failed to create lyrics file: " + trackFile,
+                                e);
                         throw new RuntimeException("Not handled", e);
                     }
                 }
@@ -128,7 +138,8 @@ public class LyricsDownloader {
         String[] fs = next.text().split("\\. ");
         String t = trackNo + ".";
         if (!fs[0].equals(String.valueOf(trackNo))) {
-            System.err.println(t + " != " + fs[0]);
+            LOGGER.warn("Track number mismatch - expected: {} / actual: {}", t,
+                    fs[0]);
         }
         String title = fs[1];
 
@@ -139,13 +150,12 @@ public class LyricsDownloader {
             if (a != null) {
                 href = a.attr("href");
                 if (href.indexOf("/lyrics/") < 0) {
-                    System.err.println("href: " + href);
                     href = "";
                 }
             }
         }
-        // System.out.println(String.format(" %02d. %s", trackNo, title));
-        // System.out.println(" " + href);
+        LOGGER.trace("Track extracted: {}. {}{}{}", trackNo, title,
+                href.isEmpty() ? "" : " -> ", href.isEmpty() ? "" : href);
 
         Track track = new Track(trackNo, title, href);
         return track;
