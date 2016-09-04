@@ -3,9 +3,15 @@ package com.leafriend.clo;
 import java.io.File;
 import java.io.IOException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.itextpdf.text.DocumentException;
 
 public class CloMain {
+
+    private static final Logger LOGGER = LoggerFactory
+            .getLogger(CloMain.class);
 
     private File txtDir;
 
@@ -45,7 +51,7 @@ public class CloMain {
 
         if (!txtPath.endsWith(".txt"))
             return;
-        System.out.println(txtPath);
+        LOGGER.debug("Process {}", txtPath);
 
         File txtFile = new File(txtDir, txtPath);
 
