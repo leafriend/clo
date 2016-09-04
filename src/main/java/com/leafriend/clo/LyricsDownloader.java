@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -19,8 +20,7 @@ import com.leafriend.clo.data.Track;
 
 public class LyricsDownloader {
 
-    private static final Logger LOGGER = LoggerFactory
-            .getLogger(LyricsDownloader.class);
+    private static final String DB_PROPERTIES = "db.properties";
 
     private static final Logger LOGGER = LoggerFactory
             .getLogger(LyricsDownloader.class);
@@ -35,12 +35,37 @@ public class LyricsDownloader {
         File txtDir = new File(lyricsDir, "txt");
         txtDir.mkdirs();
 
+        ClassLoader classLoader = getClass().getClassLoader();
+        InputStream in = classLoader.getResourceAsStream(DB_PROPERTIES);
+
+        Properties db = new Properties();
+        try {
+            db.load(in);
+        } catch (IOException e) {
+            LOGGER.error("Failed to load data from " + DB_PROPERTIES, e);
+            throw new RuntimeException("Not handled", e);
+        }
+
         List<Album> albums = parse(
                 new FileInputStream("resources/source/discography.html"));
 
         albums.forEach(album -> {
-            String albumName = "[" + album.getReleaseDate() + "] "
-                    + escape(album.getTitle());
+
+            String releaseDate = album.getReleaseDate();
+            String type = album.getType();
+            String title;
+            if (db.containsKey(releaseDate)) {
+                title = db.getProperty(releaseDate);
+                LOGGER.trace("[{}] {} ({}) was found from DB", releaseDate,
+                        title, type);
+                db.remove(releaseDate);
+            } else {
+                title = album.getTitle();
+                LOGGER.warn("[{}] {} ({}) was not found from DB", releaseDate,
+                        title, type);
+            }
+
+            String albumName = "[" + releaseDate + "] " + escape(title);
             File albumDir = new File(txtDir, albumName);
             if (!albumDir.exists()) {
                 LOGGER.debug("Download Album: {}", albumName);
@@ -110,7 +135,8 @@ public class LyricsDownloader {
                 next = next.nextElementSibling();
             }
             if (trackNo != album.getTrackCount()) {
-                System.err.println(album.getTrackCount() + " != " + trackNo);
+                LOGGER.warn("Track count mismatch - expected: {} / actual: {}",
+                        album.getTrackCount(), trackNo);
             }
 
             albums.add(album);
@@ -128,10 +154,15 @@ public class LyricsDownloader {
         int trackCount = Integer.parseInt(frags[1].trim().split(" ")[0]);
         String releaseDate = frags[2].trim();
 
-        Album album = new Album(type, title, releaseDate, trackCount);
-        // System.out.println(
-        // title + "\t" + type + "\t" + trackCount + "\t" + releaseDate);
-        return album;
+        releaseDate = releaseDate.replaceAll("^1987-04-04$", "1987-04-01");
+        releaseDate = releaseDate.replaceAll("^1995-05-05$", "1995-05-15");
+        releaseDate = releaseDate.replaceAll("^2002-02-02$", "2002-03-06");
+        releaseDate = releaseDate.replaceAll("^2003-01-18$", "2003-01-08");
+        releaseDate = releaseDate.replaceAll("^2005-04-02$", "2005-04-20");
+        releaseDate = releaseDate.replaceAll("^2005-04-05$", "2005-04-06");
+        releaseDate = releaseDate.replaceAll("^2008-12-12$", "2008-12-17");
+
+        return new Album(type, title, releaseDate, trackCount);
     }
 
     private Track extractTrack(int trackNo, Element next) {
