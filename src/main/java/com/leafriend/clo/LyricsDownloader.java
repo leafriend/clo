@@ -58,7 +58,6 @@ public class LyricsDownloader {
                 title = db.getProperty(releaseDate);
                 LOGGER.trace("[{}] {} ({}) was found from DB", releaseDate,
                         title, type);
-                db.remove(releaseDate);
             } else {
                 title = album.getTitle();
                 LOGGER.warn("[{}] {} ({}) was not found from DB", releaseDate,
@@ -74,8 +73,17 @@ public class LyricsDownloader {
             album.getTracks().forEach(track -> {
                 if (track.getHref().length() == 0)
                     return;
+                String titleKey = String.format("%s.%02d", releaseDate, track.getTrackNo());
+                String trackTitle;
+                if (db.containsKey(titleKey)) {
+                    trackTitle = db.getProperty(titleKey);
+                    LOGGER.trace("Track data {} was found", titleKey);
+                } else {
+                    trackTitle = track.getTitle();
+                    LOGGER.warn("Track data {} was not found", titleKey);
+                }
                 String titleName = String.format("%02d. %s.txt",
-                        track.getTrackNo(), escape(track.getTitle()));
+                        track.getTrackNo(), escape(trackTitle));
                 File trackFile = new File(albumDir, titleName);
                 if (!trackFile.exists()) {
                     LOGGER.debug("Download Track: {}", titleName);
